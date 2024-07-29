@@ -6,4 +6,4 @@
 
 ## Windows11
 
-[详细](./Windows11/README.md)
+[详细](./Windows11/11-WIN11安装.md)
