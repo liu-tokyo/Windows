@@ -8,7 +8,11 @@
 
 #### 步骤：
 
-1. **彻底关闭 Edge 浏览器。** 确保所有 Edge 进程都在任务管理器中结束。
+1. **彻底关闭 Edge 浏览器。** 确保所有 Edge 进程都在任务管理器中结束。  
+
+   ```powershell
+   taskkill /F /IM msedge.exe
+   ```
 
 2. **创建新的缓存目录：** 在您想要存放缓存的分区（例如 D 盘）创建一个新的文件夹。
 
@@ -16,7 +20,7 @@
 
 3. **定位并删除旧缓存文件夹：**
 
-   - 打开文件资源管理器，导航到 Edge 的默认用户数据目录： `C:\Users\您的用户名\AppData\Local\Microsoft\Edge\User Data\Default\`
+   - 打开文件资源管理器，导航到 Edge 的默认用户数据目录： `C:\Users\%username%\AppData\Local\Microsoft\Edge\User Data\Default\`
    - 在该目录下，找到并**删除**名为 **`Cache`** 的文件夹。
    - *(注意：如果您使用多个 Edge 配置文件，可能需要对每个配置文件（如 Profile 1, Profile 2 等）下的 `Cache` 文件夹重复此操作。)*
 
@@ -26,11 +30,11 @@
      ※ `Windows PowerShell` 无法正确识别 `mklink` 指令。
    - 输入以下命令并执行，注意将路径替换为您实际的用户名和新的缓存目录：
 
-   DOS
+       DOS - 命令提示符（可以用 `%username%` 替换 `您的用户名`）：
 
-   ```
-   mklink /D "C:\Users\您的用户名\AppData\Local\Microsoft\Edge\User Data\Default\Cache" "D:\EdgeCache"
-   ```
+       ```
+       mklink /D "C:\Users\%username%\AppData\Local\Microsoft\Edge\User Data\Default\Cache" "D:\EdgeCache"
+       ```
 
    - **示例：** `mklink /D "C:\Users\Admin\AppData\Local\Microsoft\Edge\User Data\Default\Cache" "D:\EdgeCache"`
 
