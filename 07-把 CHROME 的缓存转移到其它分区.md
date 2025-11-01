@@ -18,7 +18,7 @@
 
 3. **定位并删除旧缓存文件夹：**
 
-   - Chrome 的默认缓存路径通常在： `C:\Users\您的用户名\AppData\Local\Google\Chrome\User Data\Default\`
+   - Chrome 的默认缓存路径通常在： `C:\Users\%username%\AppData\Local\Google\Chrome\User Data\Default\`
    - 找到该目录下的 **`Cache`** 文件夹，并将其**删除**（如果无法删除，说明 Chrome 没有完全关闭，请检查任务管理器）。
    - *(如果您使用多个 Chrome 配置文件，您可能需要对每个配置文件（如 Profile 1, Profile 2 等）下的 `Cache` 文件夹重复此操作。)*
 
@@ -30,7 +30,7 @@
    DOS
 
    ```
-   mklink /D "C:\Users\您的用户名\AppData\Local\Google\Chrome\User Data\Default\Cache" "D:\ChromeCache"
+   mklink /D "C:\Users\%username%\AppData\Local\Google\Chrome\User Data\Default\Cache" "D:\ChromeCache"
    ```
 
    - **示例：** `mklink /D "C:\Users\Admin\AppData\Local\Google\Chrome\User Data\Default\Cache" "D:\ChromeCache"`

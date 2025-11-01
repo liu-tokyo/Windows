@@ -30,7 +30,7 @@
      ※ `Windows PowerShell` 无法正确识别 `mklink` 指令。
    - 输入以下命令并执行，注意将路径替换为您实际的用户名和新的缓存目录：
 
-       DOS - 命令提示符（可以用 `%username%` 替换 `您的用户名`）：
+       DOS - 命令提示符：
 
        ```
        mklink /D "C:\Users\%username%\AppData\Local\Microsoft\Edge\User Data\Default\Cache" "D:\EdgeCache"
