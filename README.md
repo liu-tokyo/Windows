@@ -51,3 +51,13 @@ Windows11开始，不再明显的显示 磁盘清理 功能，不过可以通过
 ## 4. 硬盘驱动器分区
 
 > https://learn.microsoft.com/zh-cn/windows-hardware/manufacture/desktop/configure-biosmbr-based-hard-drive-partitions?view=windows-11
+
+## 5. 下载资源
+
+- IT天空的下载资源
+
+  ```
+  https://110.40.170.171:5245/ty/CLAM藏经阁备用分享/IT天空资源分流
+  ```
+
+  
