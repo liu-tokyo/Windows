@@ -2,7 +2,7 @@
 
 将**MBR（主引导记录）格式的Windows 10**升级到Windows 11需要进行几个关键步骤，因为Windows 11的正式升级要求系统盘使用 **GPT（GUID 分区表）分区格式，并且电脑需要启用 UEFI 固件模式和安全启动（Secure Boot）**。
 
-建议使用 Windows 10 内建的 **MBR2GPT** 工具进行转换，它可以**无损数据**地将系统盘从 MBR 转换为 GPT。
+建议使用 Windows 10 内建的 **MBR2GPT** 工具进行转换，它可以**无损数据**地将系统盘从 `MBR` 转换为 `GPT`。
 
 ### 1. 确认和备份数据
 
@@ -27,7 +27,7 @@
 
    - 在命令提示符中，输入以下命令并按 **Enter** 键：
 
-     ```
+     ```powershell
      mbr2gpt /validate
      ```
 
@@ -35,7 +35,7 @@
 
    - 接着，输入以下命令并按 **Enter** 键执行转换：
 
-     ```
+     ```powershell
      mbr2gpt /convert
      ```
 
