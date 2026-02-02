@@ -142,3 +142,9 @@ DISM /Online /Cleanup-Image /StartComponentCleanup /ResetBase
      ```
 
   3. 系统会进行几分钟的计算压缩，完成后会提示释放了多少空间。
+
+
+
+### D. 使用DISM++工具
+
+如果使用 `DISM++` 进行清丽的话，能够代替上面的不少步骤。该软件可以从 `Github` 下载最新版本。
