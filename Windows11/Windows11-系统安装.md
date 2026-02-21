@@ -329,7 +329,22 @@ Windows 11 有一个内置功能可以将不常用的内存数据压缩，而不
   winget upgrade --all
   ```
 
-  
+
+### 2.6 解除分区BitLocker
+
+- 查询状态：
+
+  ```
+  Get-BitLockerVolume
+  ```
+
+- 输入以下命令解除指定磁盘（以 C 盘为例）：
+
+  ```
+  Disable-BitLocker -MountPoint "C:"
+  ```
+
+  注：你可以通过 `Get-BitLockerVolume` 随时查看 `PercentageCompleted`（完成进度）。
 
 ## 3. 制作镜像之前的处理
 
@@ -636,20 +651,16 @@ Windows 存储驱动的真正“仓库”其实是 `C:\Windows\System32\DriverSt
 
 2. **列出所有第三方驱动（可选，仅供查看）：**
 
-   PowerShell
-
-   ```
+   ```powershell
    pnputil /enum-drivers
    ```
-
+   
 3. **一键清理不再使用的驱动：**
 
-   PowerShell
-
-   ```
+   ```powershell
    pnputil /delete-driver oem*.inf /uninstall /force
    ```
-
+   
    > **注意：** 该命令只会删除那些**未被任何设备关联**的第三方驱动（oem*.inf）。正在使用的驱动会被系统保护，无法删除，所以非常安全。
 
 ------
