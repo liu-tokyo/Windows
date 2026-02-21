@@ -1,0 +1,1231 @@
+# Windows11 系统安装
+
+> #### **激活系统：**   
+>
+> ```powershell
+> irm https://get.activated.win | iex
+> ```
+
+
+
+## 1. 联网之前的设置
+
+### 1.1 设置
+
+禁止不必要的设置
+
+| 项目名称             | 位置                                                         | 建议操作 | 说明（理由）                                                 |
+| -------------------- | ------------------------------------------------------------ | -------- | ------------------------------------------------------------ |
+| **通知**             | `设置 → 系统 → 通知 → 通知`                                  | 关闭     |                                                              |
+| **请勿打扰**         | `设置 → 系统 → 通知 → 请勿打扰`                              | 开启     |                                                              |
+| **存储感知**         | `设置 → 系统 → 存储 → 存储感知`                              | 开启     |                                                              |
+| **透明效果**         | `设置 → 个性化 → 颜色 → 透明效果`                            | 关闭     | 渲染透明毛玻璃效果时会占用不少 GPU 资源，关闭后窗口拖动会更顺滑。 |
+| **小组件 (Widgets)** | `设置 → 个性化 → 任务栏 → 小组件`                            | 关闭     | Windows 11 的 Widgets 是个内存大户。                         |
+| **发送可选诊断数据** | `设置 → 隐私和安全性 → 发送可选诊断数据`                     | 关闭     | 让系统少干点“偷窥”的活                                       |
+| **量身定制的体验**   | `设置 → 隐私和安全性 → 量身定制的体验`                       | 关闭     |                                                              |
+| **在历史记录中搜搜** | `设置 → 隐私和安全性 → 搜索 → 在历史记录中搜搜`              | ~~关闭~~ | 实践。关闭了反而不好                                         |
+| **显示搜索要点**     | `设置 → 隐私和安全性 → 搜索 → 显示搜索要点`                  | 关闭     | 点击搜索框的时候，不显示网络内容，仅显示本地内容。           |
+| **个性化广告**       | `设置 → 隐私和安全性 → 常规`                                 | 关闭     |                                                              |
+| **内核隔离**         | `设置 → 隐私和安全性 → Windows 安全中心 → 设备安全性 → 内核隔离` | 关闭     | VBS (基于虚拟化的安全性)，这是 Win11 拖慢老 CPU 性能的元凶之一。 |
+| **传递优化**         | `设置 → Windows 更新 → 高级选项 → 传递优化`                  | 关闭     |                                                              |
+
+### 1.2 服务
+
+禁止不必要的服务，搜索框输入 `services.msc` 并回车确定，处理如下服务：
+
+| 服务名称                                     | 建议操作      | 说明（理由）                                                 |
+| -------------------------------------------- | ------------- | ------------------------------------------------------------ |
+| **Connected User Experiences and Telemetry** | **禁用**      | 臭名昭著的“遥测”服务，后台持续上传系统使用数据。             |
+| **Downloaded Maps Manager**                  | **禁用**      | （服务名称为 `MapsBroker`）是 Windows 系统中专门负责管理**离线地图**的服务。 |
+| **SysMain (原 Superfetch)**                  | **禁用/手动** | 针对机械盘优化的预加载，对 SSD 意义不大且容易导致 CPU 瞬间满载。 |
+| **Windows Search**                           | **手动**      | 如果你很少用开始菜单搜本地文件，关掉它能节省大量后台索引开销。 |
+| **Microsoft Edge Update Service**            | **禁用**      | 除非你天天用 Edge 且强迫症要最新版，否则没必要让它在后台待命。 |
+| **Print Spooler**                            | **禁用/手动** | 如果你不接打印机，这个服务纯属浪费。                         |
+| **Windows Image Acquisition (WIA)**          | **禁用**      | 如果你不接扫描仪。                                           |
+
+### 1.3 组策略
+
+搜索框输入 **`gpedit.msc`**，并回车确定，处理如下项目：
+
+| 策略位置                                                     | 项目                                     | 建议操作   | 说明（理由）                          |
+| ------------------------------------------------------------ | ---------------------------------------- | ---------- | ------------------------------------- |
+| 计算机配置 → 管理模板 → Windows 组件 → 数据收集和预览版      | **允许诊断数据**                         | **已禁用** | Connected User Experiences 相关       |
+| 用户配置 → 管理模板 → Windows 组件 → 搜索                    | **不允许 Web 搜索**                      | **已启用** | 禁用 Bing 网络结果（Web Search）      |
+| 〃                                                           | **请勿在 Web 搜索中搜索或显示 Web 结果** | **已启用** | 〃                                    |
+| 计算机配置 → 管理模板 → Windows 组件 → OneDrive              | **禁止使用 OneDrive 进行文件存储**       | **已启用** | 彻底禁止 OneDrive                     |
+| 计算机配置 → 管理模板 → Windows 组件 → Windows 更新 → 管理最终用户体验 | **配置自动更新**                         | **已禁用** | 关闭 Windows 更新，比关闭服务更稳妥。 |
+
+### 1.4 `Winget`指令
+
+```
+winget uninstall "Windows web experience pack"
+winget uninstall "Cortana"
+winget uninstall "MSN 天气"
+winget uninstall "获取帮助"
+winget uninstall "Microsoft 使用技巧"
+winget uninstall "画图 3D"
+winget uninstall "3D 查看器"
+winget uninstall "Office"
+winget uninstall "Microsoft Solitaire Collection"
+winget uninstall "Microsoft Sticky Notes"
+winget uninstall "混合现实门户"
+winget uninstall "OneNote"
+winget uninstall "Microsoft 人脉"
+winget uninstall "Skype"
+winget uninstall "Microsoft Pay"
+winget uninstall "Microsoft 照片"
+winget uninstall "Windows 闹钟和时钟"
+winget uninstall "Windows 计算器"
+winget uninstall "Windows 相机"
+winget uninstall "反馈中心"
+winget uninstall "Windows 地图"
+winget uninstall "Windows 录音机"
+winget uninstall "Xbox TCUI"
+winget uninstall "Xbox"
+winget uninstall "Xbox Game Bar Plugin"
+winget uninstall "Xbox Game Bar "
+winget uninstall "Xbox Identity Provider"
+winget uninstall "Xbox Game Speech Window"
+winget uninstall "你的手机"
+winget uninstall "Groove 音乐"
+winget uninstall "电影和电视"
+winget uninstall "Outlook for Windows"
+winget uninstall "Microsoft 必应"
+winget uninstall "Game Bar"
+winget uninstall "Game Speech Window"
+winget uninstall "Microsoft Tips"
+winget uninstall "Microsoft OneDrive"
+winget uninstall "Microsoft Clipchamp"
+winget uninstall "Power Automate"
+
+```
+
+### 1.5 PowerShell脚本
+
+```
+# 1. 卸载 Windows 小组件 (Widgets) - 4GB 内存最大的杀手
+Write-Host "正在移除 Windows 小组件..." -ForegroundColor Cyan
+winget uninstall "Windows web experience pack" --accept-source-agreements --accept-package-agreements
+
+# 2. 批量卸载自带的“全家桶”预装应用 (保持商店和照片可用)
+$AppsList = @(
+    "Microsoft.Messaging"            # 消息
+    "Microsoft.GetHelp"              # 获取帮助
+    "Microsoft.Getstarted"           # 入门
+    "Microsoft.People"               # 联系人
+    "Microsoft.PowerAutomateDesktop" # 自动化桌面
+    "Microsoft.BingNews"             # 新闻
+    "Microsoft.BingWeather"          # 天气
+    "Microsoft.YourPhone"            # 手机连接
+    "Microsoft.WindowsFeedbackHub"   # 反馈中心
+    "Microsoft.ZuneMusic"            # 音乐
+    "Microsoft.ZuneVideo"            # 电影和电视 (你已经打算用 VLC 了)
+    "Microsoft.SkypeApp"             # Skype
+    "Microsoft.MicrosoftSolitaireCollection" # 纸牌游戏
+    "Microsoft.Todos"                # To Do
+    "Microsoft.StartExperiencesApp"  # “开始体验”应用
+    "Microsoft.Windows.Photos"       # Microsoft 照片
+    "Microsoft.WindowsAlarms"        # Windows 时钟
+    "Microsoft.WindowsCamera"        # Windows 相机
+    "Microsoft.WindowsSoundRecorder" # Windows 录音机
+    "MicrosoftCorporationII.QuickAssist" # 快速助手
+    "Microsoft.MicrosoftStickyNotes" # Microsoft 便笺
+    "Microsoft.Windows.DevHome"      # 开发人员主页
+    "Microsoft Clipchamp"            # Clipchamp.Clipchamp
+    "Microsoft.RawImageExtension"    # Raw Image Extension
+    "Microsoft.WidgetsPlatformRuntime" # Widgets Platform Runtime（任务栏左侧的“小组件”功能）
+)
+
+foreach ($App in $AppsList) {
+    Write-Host "正在卸载: $App" -ForegroundColor Yellow
+    Get-AppxPackage -Name $App -AllUsers | Remove-AppxPackage -ErrorAction SilentlyContinue
+}
+
+# 3. 禁用不必要的系统功能
+Write-Host "正在禁用冗余功能..." -ForegroundColor Cyan
+# 禁用搜索栏中的“热门搜索”建议
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\Search" /v "SearchboxTaskbarMode" /t REG_DWORD /d 1 /f
+
+# 4. 彻底禁止它再次自动安装-入门
+Get-AppxProvisionedPackage -Online | Where-Object {$_.PackageName -like "*Getstarted*"} | Remove-AppxProvisionedPackage -Online
+
+# 5. Ink.Handwriting.ja-JP.1.0
+#Get-WindowsCapability -Online | Where-Object { $_.Name -like "*Handwriting*ja-JP*" } | Remove-WindowsCapability -Online
+# 查找日语体验包并移除
+#Get-AppxPackage *LanguageExperiencePackja-JP* | Remove-AppxPackage
+
+# 6. 卸载当前用户的 HEIF 扩展
+#Get-AppxPackage *HEIFImageExtension* | Remove-AppxPackage
+# 从预装库彻底剔除
+#Get-AppxProvisionedPackage -Online | Where-Object {$_.PackageName -like "*HEIFImageExtension*"} | Remove-AppxProvisionedPackage -Online
+
+# 7. 优化内存报告 (清理残留)
+Write-Host "优化完成！建议重启电脑以释放内存。" -ForegroundColor Green
+
+```
+
+### 1.6 注册表
+
+搜索框输入 **`regedit`**，并回车确定，处理如下项目：
+
+| 位置                                                         | 项目                             | 类型          | 数值 | 说明（理由）                                |
+| ------------------------------------------------------------ | -------------------------------- | ------------- | ---- | ------------------------------------------- |
+| HKEY_CLASSES_ROOT\CLSID{018D5C66-4533-4307-9B53-224DE2ED1FE6} | `System.IsPinnedToNameSpaceTree` | DWORD (32 位) | 0    | 禁止 OneDrive ※（卸载后一般已消失，如还在） |
+| HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\Search | `BingSearchEnabled`              | DWORD (32 位) | 0    | 禁用 Bing                                   |
+| 〃                                                           | `ConnectedSearchUseWeb`          | DWORD (32 位) | 0    | 〃                                          |
+
+### 1.7 其它操作
+
+- 画面特效（如果你觉得窗口切换不够丝滑，可以牺牲一点美感换速度）
+
+  搜索框内输入 `调整 Windows 的外观和性能`，选择 **“调整为最佳性能”**，然后仅勾选 **“平滑屏幕字体边缘”**（防止文字模糊）。这会让系统操作感觉快起飞。
+
+- 卸载 OneDrive
+
+  ```
+  taskkill /f /im OneDrive.exe
+  %SystemRoot%\System32\OneDriveSetup.exe /uninstall
+  ```
+
+  如果是 32 位 OneDrive
+
+  ```
+  %SystemRoot%\SysWOW64\OneDriveSetup.exe /uninstall
+  ```
+
+  删除残留文件夹
+
+  ```
+  rd "%UserProfile%\OneDrive" /s /q
+  rd "%LocalAppData%\Microsoft\OneDrive" /s /q
+  rd "%ProgramData%\Microsoft OneDrive" /s /q
+  ```
+
+- 停用磁盘整理计划
+  SSD的话，几乎不需要磁盘整理；
+  HDD的话，一旦开始磁盘整理，电脑就完全无法操作；最好是人工手动、在空闲的时候整理磁盘更好。或者是使用 DiskGenius 等磁盘工具对分区进行备份，然后再还原，就更加彻底了。
+
+- **文件夹选项**：常规页面，勾选掉 **快速访问** 的相关项目，并切除**文件资源管理器的历史记录**。
+
+### 1.8 压缩内存
+
+>  (Memory Compression)
+
+Windows 11 有一个内置功能可以将不常用的内存数据压缩，而不是直接丢到硬盘虚拟内存。
+
+1. 右键开始菜单 -> 终端（管理员），输入：
+
+   ```
+   Get-mmagent
+   ```
+
+2. 如果 `MemoryCompression` 是 `False`，输入如下指令并重启。
+
+   ```
+   Enable-mmagent -mc
+   ```
+
+注：尤其是 4GB 内存的 Windows11，非常有必要开启。
+
+- 什么时候“不建议”开启？
+  机器在运行某个特定软件时 CPU 一直处于 100% 满载，且伴随严重的卡顿，那么压缩内存可能会产生“抢资源”的副作用。但在 99% 的办公和网课场景下，开启它都是利大于弊。
+- 进阶建议：调整虚拟内存（页面文件）
+  **不要关闭虚拟内存：** 关闭会导致软件直接崩溃。
+  **手动设置：** 建议将虚拟内存的大小固定在 **4GB - 8GB** 左右。不要让系统自动管理，以免它在硬盘空间不足时疯狂扩容，导致系统崩溃。
+
+### 1.9 解除磁盘加密
+
+如果你想在后台静默处理，或者控制面板打不开，可以使用这个命令。
+
+1. 以 **管理员身份** 运行 PowerShell。
+
+2. 输入以下命令查看各分区的加密状态：
+
+   ```powershell
+   manage-bde -status
+   ```
+
+3. 输入以下命令开始解密（将 `C:` 替换为你实际要解密的盘符）：
+
+   ```powershell
+   manage-bde -off C:
+   ```
+
+4. **注意：** 解密是一个物理过程，需要时间。你可以通过再次运行 `manage-bde -status` 来查看 **“百分比已加密”** 是否在下降。
+
+## 2. 联网之后的设置
+
+### 2.1 安装常用软件
+
+**Windows11** 内置了 **winget**，直接用如下指令进行安装：
+
+- **7-Zip**
+
+  ```cmd
+  winget install --id 7zip.7zip --source winget
+  ```
+
+- **WinMerge**
+
+  ```cmd
+  winget install --id WinMerge.WinMerge --source winget
+  ```
+
+- **Microsoft Visual Studio Code**
+
+  ```cmd
+  winget install --id Microsoft.VisualStudioCode --source winget
+  ```
+
+- **IntelliJ IDEA Community Edition**
+
+  ```cmd
+  winget install --id JetBrains.IntelliJIDEA.Community --source winget
+  ```
+
+- **Git**
+
+  ```cmd
+  winget install --id Git.Git --source winget
+  ```
+
+- **TortoiseGit**
+
+  ```cmd
+  winget install --id TortoiseGit.TortoiseGit --source winget
+  ```
+
+
+### 2.2 Typora 安装&设置
+
+- **编辑区修改：**  
+  修改如下目录中的 **base-control.css** 文件，把 `800px` → `96%`
+
+  ```cmd
+  C:\Program Files\Typora\resources\app\style
+  ```
+
+- **主题修改：**  
+  修改如下目录中的所有 **css** 文件，把所有编辑宽度设置为 `96%`
+
+  ```cmd
+  C:\Users\VIP\AppData\Roaming\Typora\themes
+  ```
+
+
+### 2.3 输入法设置
+
+- 初始设置为 **英文**
+
+### 2.4 系统更新到最新
+
+包括 Windows 和 Office 等
+
+### 2.5 更新最新组件
+
+- 使用如下指令，把所有组件更新到最新状态：
+
+  ```
+  winget upgrade --all
+  ```
+
+  
+
+## 3. 制作镜像之前的处理
+
+尽最大程度给 系统盘 瘦身，对内存不大的电脑，最大程度的较小内存占用。
+
+### 3.1 DISM++ 系统瘦身
+
+### 3.2 磁盘清理
+
+- 命令提示符 内输入如下指令，针对磁盘进行清理：
+
+  ```
+  cleanmgr
+  ```
+
+### 3.3 转移个人文件夹（用户目录）
+
+“桌面”、“文档”、“下载”这几个文件夹默认都在 C 盘。随着时间推移，缓存和残留文件会迅速堆积。
+
+- **操作方法：**
+  1. 打开“此电脑”，右键点击 **“下载”** 或 **“文档”**。
+  2. 选择 **“属性”** -> **“位置”** 选项卡。
+  3. 点击 **“移动”**，选择 D 盘或 E 盘的一个新建文件夹。
+  4. 点击确定，系统会自动把现有文件搬过去。
+
+### 3.4 使用 DISM 进行瘦身
+
+- **基础瘦身：清理组件存储**
+
+  **分析组件库：**
+
+  ```
+  Dism /Online /Cleanup-Image /AnalyzeComponentStore
+  ```
+
+  **执行清理：**
+
+  ```
+  Dism /Online /Cleanup-Image /StartComponentCleanup
+  ```
+
+  **深度瘦身：**
+
+  ```
+  Dism /Online /Cleanup-Image /StartComponentCleanup /ResetBase
+  ```
+
+  *（会删除每个组件的所有旧版本，清理力度最大，但执行后将无法卸载现有的补丁）*
+
+- **进阶：CompactOS 压缩**
+
+  对于硬盘空间极度紧张（如 64GB 或 128GB 的设备）的用户，可以使用 **CompactOS** 技术。它不属于传统的 DISM 清理，但原理类似，能通过压缩系统可执行文件来释放约 **2GB - 4GB** 的空间。
+
+  **查询压缩状态：**
+
+  ```
+  compact /CompactOS:query
+  ```
+
+  **开启系统压缩：**
+
+  ```
+  compact /CompactOS:always
+  ```
+
+  **关闭压缩（恢复原始状态）：**
+  
+  ```
+  compact /compactos:never
+  ```
+
+### 3.5 调整虚拟内存（Pagefile.sys）
+
+虚拟内存文件默认由系统管理，通常会占用数 GB 甚至十几 GB。如果你有 16GB 或以上的物理内存，可以手动限制它的上限。
+
+- **操作路径：** 右键“此电脑” -> 属性 -> 高级系统设置 -> 性能“设置” -> 高级 -> 更改。
+- **优化建议：** 取消勾选“自动管理”，选择 C 盘，设置“自定义大小”。初始值和最大值建议设为 **2048MB - 4096MB**（如果你内存足够大）。
+
+### 3.6 关闭或缩减休眠文件（Hiberfil.sys）
+
+休眠功能会将内存数据保存到 C 盘，占用量约为物理内存的 40%-80%。如果你平时习惯“关机”或“睡眠”而不是“休眠”，可以关掉它。
+
+- **完全关闭：** 在管理员 CMD 中输入： `powercfg -h off`  (这将立即释放等同于内存容量几 GB 的空间)
+
+  ```
+  powercfg -h off
+  ```
+
+- **仅缩减：** 如果你想保留“快速启动”，但减少占用： `powercfg -h -size 50` (将占用缩小至内存的 50%)
+
+  ```
+  powercfg -h -size 50
+  ```
+
+**是否开启？**
+
+- **开启**：如果你平时需要频繁启动电脑，快速启动是个不错的选择，能显著提高启动速度。
+- **禁用**：如果你更注重系统的稳定性和需要进行系统维护（如更新驱动、重装系统等），禁用快速启动可能更适合。
+
+### 3.7 清理旧版本 Windows (Windows.old)
+
+如果你最近刚更新过 Windows 大版本，C 盘会有一个 `Windows.old` 文件夹。
+
+- **快速清理：** 按下 `Win + I` -> 系统 -> 存储 -> **清理建议**（或“临时文件”）。 勾选 **“以前的 Windows 安装”**，点击删除。
+
+### 3.8 扫描“隐藏”的垃圾：大文件分析
+
+有时候空间被莫名其妙占满，是因为某个软件的日志（Log）或是微信/QQ 的视频缓存。
+
+> **推荐工具：** 使用 **WizTree** 或 **SpaceSniffer**。 这类工具能以视觉化的形式展示 C 盘的文件分布，哪里红了一大块，哪里就是空间杀手。
+
+### 3.9 编写清理脚本
+
+#### 3.9.1 制作批处理文件
+
+```
+CleanUp.bat
+```
+
+```bat
+@echo off
+title Windows 系统深度清理工具
+color 0A
+
+:: 检查管理员权限
+net session >nul 2>&1
+if %errorLevel% == 0 (
+    echo [状态] 已获取管理员权限，准备执行清理...
+) else (
+    echo [错误] 请右键点击此文件，选择“以管理员身份运行”！
+    pause
+    exit
+)
+
+echo.
+echo ==========================================
+echo    正在清理系统垃圾文件，请稍候...
+echo ==========================================
+echo.
+
+:: 1. 清理用户临时文件夹
+echo [1/6] 正在清理用户临时文件...
+del /f /s /q "%temp%\*.*"
+rd /s /q "%temp%"
+mkdir "%temp%"
+
+:: 2. 清理系统临时文件夹
+echo [2/6] 正在清理系统 Windows 临时文件...
+del /f /s /q "%systemroot%\temp\*.*"
+rd /s /q "%systemroot%\temp"
+mkdir "%systemroot%\temp"
+
+:: 3. 清理 Prefetch (预读取) 文件
+echo [3/6] 正在清理预读取缓存...
+del /f /s /q "%systemroot%\Prefetch\*.*"
+
+:: 4. 清理系统日志文件
+echo [4/6] 正在清理系统日志 (*.log)...
+del /f /s /q "%systemroot%\*.log"
+
+:: 5. 清理自动更新下载的安装包 (SoftwareDistribution)
+echo [5/6] 正在清理 Windows 更新缓存...
+net stop wuauserv >nul 2>&1
+del /f /s /q "%systemroot%\SoftwareDistribution\Download\*.*"
+net start wuauserv >nul 2>&1
+
+:: 6. 清理回收站
+echo [6/6] 正在清空回收站...
+rd /s /q %systemdrive%\$Recycle.bin
+
+echo.
+echo ==========================================
+echo    清理完成！系统已恢复清爽。
+echo ==========================================
+echo.
+pause
+
+```
+
+#### 3.9.2 核心命令解析
+
+如果你想自定义这个脚本，了解这几个参数很有用：
+
+- **`del /f /s /q`**:
+  - `/f`: 强制删除只读文件。
+  - `/s`: 从所有子目录中删除指定文件（深度清理）。
+  - `/q`: 静默模式，删除时不询问确认。
+- **`rd /s /q`**: 删除目录及其下的所有子目录和文件。
+- **`%temp%`**: 这是一个环境变量，指向当前登录用户的临时文件夹（通常在 `AppData\Local\Temp`）。
+
+------
+
+#### 3.9.3 如何安全运行？
+
+- **必须以管理员身份运行**：右键点击该 `.bat` 文件，选择 **“以管理员身份运行”**。否则，脚本将无法访问 `C:\Windows\Temp` 等核心目录。
+- **报错是正常的**：在清理过程中，你可能会看到“文件正在被另个程序使用”或“拒绝访问”。这很正常，说明某些临时文件（如浏览器缓存或系统日志）正随着系统运行而在后台使用中，脚本会自动跳过它们。
+
+------
+
+#### 3.9.4 进阶建议：配合任务计划程序
+
+如果你希望电脑每天自动清理，而不需要手动去点：
+
+1. 搜索并打开 **“任务计划程序”**。
+2. 点击 **“创建基本任务”**。
+3. 名字起名为“自动清理垃圾”，触发器选“每周”或“每天”。
+4. 操作选择“启动程序”，然后浏览并选择你写好的那个 `.bat` 文件即可。
+
+## 4. 其他处理
+
+### 4.1 查询电池健康状况
+
+- 命令提示符输入如下指令：
+
+  ```
+  powercfg /batteryreport
+  ```
+
+  文件保存到如下位置：
+
+  ```
+  C:\Users\%username%\battery-report.html
+  ```
+
+- 查询后把文件拷贝到 D盘：
+
+  ```
+  powercfg /batteryreport
+  COPY C:\Users\%username%\battery-report.html D:\.
+  
+  ```
+  
+
+### 4.2 EDGE清除缓存及调整性能
+
+- 清除缓存
+- 设置 → 系统和性能 → 系统  
+  关闭 **系统增加** 和 **关闭 Microsoft Edge 后继续运行后台扩展和应用**。
+
+### 4.3 资源管理器设置
+
+- 选项 → 常规  
+  打开资源管理器是打开：**此电脑**  
+  **隐私** 勾掉掉所有项目，并点击 **清除** 按钮，清除所有历史记录。
+- 选项 → 查看  
+  选择：**显示隐藏的文件、文件夹及驱动器**  
+  勾掉：**隐藏已知文件类型的扩展名**
+
+### 4.4 DISM 修复映像
+
+DISM 会对比微软官方的服务器，检查你电脑里那些用于安装系统的源文件是否损坏。
+
+1. **扫描健康度：
+
+   ```
+   Dism /Online /Cleanup-Image /ScanHealth
+   ```
+
+2. **修复源文件（最核心）：
+
+   ```
+   Dism /Online /Cleanup-Image /RestoreHealth
+   ```
+
+   > **注意：** 如果你刚才执行了 `/ResetBase` 清理，这一步可能会报错或进度缓慢，这是正常的，因为它正在重新校验当前的基准。
+
+### 4.5 SFC 修复系统文件
+
+在源文件（零件库）修好后，我们再用这些正确的零件去替换系统里损坏的文件。
+
+1. **执行命令：** 
+
+   ```
+   sfc /scannow
+   ```
+
+   > **结果解读：** > * “未找到完整性冲突”：系统很健康。  
+   > “已成功修复损坏文件”：立大功，系统被救回来了。
+
+### 4.6 DISM 与 SFC 的区别对比
+
+| **特性**     | **SFC (System File Checker)**             | **DISM (Deployment Image Management)**  |
+| ------------ | ----------------------------------------- | --------------------------------------- |
+| **主要功能** | 检查并修复当前的运行文件 (`.dll`, `.exe`) | 修复 Windows 映像库和组件库 (`WinSxS`)  |
+| **修复来源** | 依靠本地的组件库进行修复                  | 依靠 Windows Update 或外部 ISO 镜像修复 |
+| **适用场景** | 软件闪退、系统报错、蓝屏后                | SFC 无法修复时、系统更新失败时          |
+| **执行速度** | 较快                                      | 较慢（涉及大量校验）                    |
+
+### 4.7 清除无需驱动程序
+
+> 大概可以清理 100MB 的空间
+
+清理 `C:\Windows\System32\drivers` 文件夹需要非常精准，因为直接手动删除那里的 `.sys` 文件极易导致蓝屏（BSOD）。  
+Windows 存储驱动的真正“仓库”其实是 `C:\Windows\System32\DriverStore\FileRepository`。当你在电脑上插过一个陈年的 U 盘、旧打印机或旧显卡时，系统都会把驱动永久备份在这里。  
+以下是安全清理这些“僵尸驱动”的三种方法：
+
+------
+
+#### 1. 使用官方自带工具：PNPUtil（最安全）
+
+`PnPUtil` 是 Windows 内置的驱动管理利器，它可以识别哪些驱动是“过时”的（即：驱动库里有，但当前没有任何硬件在使用的驱动）。
+
+1. **以管理员身份运行 PowerShell**。
+
+2. **列出所有第三方驱动（可选，仅供查看）：**
+
+   PowerShell
+
+   ```
+   pnputil /enum-drivers
+   ```
+
+3. **一键清理不再使用的驱动：**
+
+   PowerShell
+
+   ```
+   pnputil /delete-driver oem*.inf /uninstall /force
+   ```
+
+   > **注意：** 该命令只会删除那些**未被任何设备关联**的第三方驱动（oem*.inf）。正在使用的驱动会被系统保护，无法删除，所以非常安全。
+
+------
+
+#### 2. 深度清理：Device Cleanup Tool（可视化推荐）
+
+如果你希望看到具体是哪个“2022年的摄像头”或“旧手机”占用了空间，推荐使用一个小巧的开源工具：**Device Cleanup Tool**。
+
+- **原理：** 它会扫描注册表，找出所有曾经连接过但现在不在电脑上的设备。
+- **操作：**
+  1. 以管理员权限运行该工具。
+  2. 点击 `Devices` -> `Select all non-present devices`（选择所有当前不在场的设备）。
+  3. 点击 `Device` -> `Remove`。
+- 这会彻底清理掉这些不存在设备在 `drivers` 文件夹中的引用。
+
+------
+
+#### 3. 进阶：清理 DriverStore Explorer (RAPR)
+
+如果你发现显卡驱动更新了几次，C 盘莫名少了几个 GB，这是因为旧版显卡驱动还在“仓库”里吃灰。**RAPR** 是目前公认最强大的驱动清理图形化工具。
+
+1. 下载并以管理员运行 **DriverStore Explorer**。
+2. 点击 **"Select Old Drivers"**（选择旧版驱动）。
+   - 它会自动帮你勾选那些已经有新版本替代、且当前未被使用的旧驱动（通常是显卡、声卡、网卡驱动）。
+3. 勾选 **"Force Deletion"**（强制删除），然后点击 **"Delete Driver(s)"**。
+   - **战果：** 这一步通常能直接释放 **1GB - 5GB** 的 C 盘空间。
+
+------
+
+#### 4. 为什么不能直接去 `drivers` 文件夹删文件？
+
+- **依赖关系：** `System32\drivers` 里的文件是驱动的“执行体”。如果你删了一个正在被系统加载的 `.sys` 文件，下次开机时 Windows 会因为找不到必要文件而进入 `INACCESSIBLE_BOOT_DEVICE` 蓝屏死机。
+- **权限保护：** 这里的系统文件受 `TrustedInstaller` 保护，手动删除非常麻烦且危险。
+
+------
+
+#### 5. 总结：驱动瘦身流程建议
+
+| **步骤**   | **操作**                                      | **预期效果**                   |
+| ---------- | --------------------------------------------- | ------------------------------ |
+| **第一步** | 运行 `pnputil` 命令                           | 快速清理无用的 oem 基础驱动    |
+| **第二步** | 使用 `RAPR` 工具                              | 清理巨大的旧版显卡/声卡驱动包  |
+| **第三步** | 运行 `DISM /StartComponentCleanup /ResetBase` | 压缩并清理被取代的驱动备份组件 |
+
+### 4.8 禁止第三方推广应用
+
+这是一个非常明智的操作。Windows 11 有个让人恼火的特性：即使你刚把系统清理干净，它也会通过后台静默下载一些“建议的应用”（如 *Candy Crush*、*TikTok* 或某些没用的社交软件）到你的开始菜单里。  
+要彻底切断这些“推广垃圾”的自动下载，我们需要在注册表中修改 **4 个关键位置**。
+
+------
+
+#### 1. 禁用“静默安装”推广应用
+
+这是最核心的一项，防止 Windows 在后台偷偷下载并安装微软认为你可能喜欢的第三方应用。
+
+1. 按 `Win + R`，输入 `regedit` 并回车。
+2. 导航至： `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager`
+3. 在右侧找到（如果没有就新建）一个 **DWORD (32 位) 值**，命名为 **`SilentInstalledAppsEnabled`**。
+4. 将数值数据修改为 **`0`**。
+
+------
+
+#### 2. 禁用“开始菜单”中的建议
+
+关闭开始菜单中那些讨厌的“推荐”磁贴或图标提示。
+
+1. 在同一位置（`ContentDeliveryManager`）下。
+2. 找到（或新建）以下几个 **DWORD (32 位) 值**，并将它们的值全部设为 **`0`**：
+   - **`SystemPaneSuggestionsEnabled`**（系统窗格建议）
+   - **`SubscribedContent-338388Enabled`**（开始菜单推荐内容）
+   - **`SubscribedContent-338389Enabled`**（设置中的建议内容）
+
+------
+
+#### 3. 禁用“消费者体验”功能
+
+这是针对**全局企业策略**的修改，告诉系统这台电脑不需要“消费者个性化内容”。
+
+1. 导航至： `HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows\CloudContent` *(如果 `CloudContent` 项不存在，请右键点击 `Windows` 文件夹 -> 新建 -> 项)*
+2. 在 `CloudContent` 右侧新建一个 **DWORD (32 位) 值**，命名为 **`DisableWindowsConsumerFeatures`**。
+3. 将数值数据修改为 **`1`**。
+
+------
+
+#### 4. 彻底禁用“设置”中的广告和垃圾建议
+
+微软有时会在“设置”主页显示 Microsoft 365 订阅或其他“优惠信息”。
+
+1. 导航至： `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement` *(如果项不存在则新建)*
+2. 找到（或新建）一个 **DWORD (32 位) 值**，命名为 **`ScoobeSystemSettingEnabled`**。
+3. 将数值数据修改为 **`0`**。
+
+------
+
+#### 5. 进阶：使用一条 PowerShell 命令搞定所有
+
+如果你不想一个一个去找注册表路径，可以以 **管理员身份运行 PowerShell**，直接运行这段集成脚本：
+
+```powershell
+# 禁用静默安装
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SilentInstalledAppsEnabled" /t REG_DWORD /d 0 /f
+
+# 禁用消费者体验
+reg add "HKLM\SOFTWARE\Policies\Microsoft\Windows\CloudContent" /v "DisableWindowsConsumerFeatures" /t REG_DWORD /d 1 /f
+
+# 禁用开始菜单建议
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SystemPaneSuggestionsEnabled" /t REG_DWORD /d 0 /f
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338388Enabled" /t REG_DWORD /d 0 /f
+
+# 禁用设置主页建议
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\UserProfileEngagement" /v "ScoobeSystemSettingEnabled" /t REG_DWORD /d 0 /f
+
+```
+
+------
+
+#### 6. 最后一步：清理“已存在的垃圾”
+
+修改注册表能防止“未来”的广告，但如果你已经看到开始菜单里有那些带下载图标的应用，请直接：
+
+- **右键点击 -> 卸载**。
+- 由于你已经修改了注册表，它们被删掉后就再也不会自动滚回来了。
+
+------
+
+#### 总结
+
+完成这些操作后，你的 Windows 11 才真正算是一个“干净的生产力工具”，而不再是一个“广告推送终端”。
+
+### 4.9 禁用锁屏界面上“趣味知识和提示”
+
+锁屏界面上的那些“趣味知识”（其实就是微软的广告位）确实很煞风景，尤其是当你精心挑选了一张壁纸，却被几个突兀的半透明对话框遮挡时。
+
+要彻底禁用它们，你可以根据你使用的锁屏背景类型（是“Windows 聚焦”还是“图片”）采取不同的方法：
+
+------
+
+#### 方法 A：如果你使用的是“图片”或“幻灯片”背景
+
+这是最常见的场景，操作也最简单：
+
+1. 打开 **设置** (`Win + I`)。
+2. 进入 **个性化 -> 锁屏界面**。
+3. 在“个性化锁屏界面”下拉菜单中，确保你选择的是 **图片** 或 **幻灯片放映**。
+4. **关键动作：** 取消勾选下方的 **“在锁屏界面上从 Windows 和 Cortana 获取花絮、提示、技巧等”**。
+
+------
+
+#### 方法 B：如果你使用的是“Windows 聚焦”（每日一图）
+
+如果你喜欢 Windows 自动更换精美壁纸（聚焦模式），你会发现“设置”里那个勾选项消失了。微软默认将广告强制捆绑在“聚焦”模式中。
+
+**要破解这一点，你需要修改注册表：**
+
+1. 按下 `Win + R`，输入 `regedit` 并回车。
+2. 导航至： `HKEY_CURRENT_USER\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager`
+3. 在右侧找到这两个键值（如果没有就新建 **DWORD (32 位) 值**）：
+   - **`SubscribedContent-338387Enabled`**：设置为 **`0`**（禁用锁屏上的聚焦内容提示）。
+   - **`RotatingLockScreenEnabled`**：设置为 **`0`**（如果你想彻底禁止聚焦功能的广告推送）。
+
+------
+
+#### 方法 C：禁用“锁屏状态应用”（天气、新闻）
+
+Windows 11 最近在锁屏底部加入了一排“天气和兴趣”卡片，这也会让界面显得杂乱：
+
+1. 在 **设置 -> 个性化 -> 锁屏界面** 中。
+2. 找到 **“锁屏状态”** 选项。
+3. 将下拉框改为 **“无”**。
+
+------
+
+#### 方法 D：一键静默处理（PowerShell 管理员）
+
+如果你想快刀斩乱麻，直接在终端里粘贴这段命令：
+
+```powershell
+# 禁用锁屏界面上的提示和技巧
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-338387Enabled" /t REG_DWORD /d 0 /f
+
+# 禁用锁屏上的“Windows 欢迎体验”
+reg add "HKCU\Software\Microsoft\Windows\CurrentVersion\ContentDeliveryManager" /v "SubscribedContent-310093Enabled" /t REG_DWORD /d 0 /f
+
+```
+
+------
+
+#### 进阶提示：彻底干净的锁屏
+
+如果你连锁屏界面那层“蒙版”（需要点击或上划才能看到密码框的那个界面）都想跳过，直接开机就进密码输入框，可以这样做：
+
+1. 在注册表 `HKEY_LOCAL_MACHINE\SOFTWARE\Policies\Microsoft\Windows` 下新建一个项，命名为 **`Personalization`**。
+2. 在 `Personalization` 右侧新建 **DWORD (32 位) 值**，命名为 **`NoLockScreen`**，数值设为 **`1`**。
+   - *效果：开机自检后直接显示输入密码的界面，不再显示那张大壁纸。*
+
+
+
+## 5. Modern Standby
+
+这绝对是现代 Windows 笔记本用户的**头号噩梦**。
+
+所谓的“现代待机”（Modern Standby，又称 S0 低功耗待机），其初衷是让电脑像手机一样，锁屏时也能收邮件、更新后台。但现实往往是：你把电脑放进包里，它却在偷偷下载补丁或运行扫描，导致**风扇狂转、电池耗尽，甚至可能因为过热损坏硬件**。
+
+要解决这个问题，我们有三种方案：从“温和降级”到“彻底封杀”。
+
+------
+
+### 方法 A：通过注册表切换回“传统睡眠 (S3)”（最彻底）
+
+这是精简派最爱的方法，强迫电脑使用传统的 S3 睡眠模式（这种模式下，CPU 几乎完全切断电源，不处理任何任务）。
+
+1. 以 **管理员身份** 运行 PowerShell 或命令提示符。
+
+2. 输入并执行以下命令：
+
+   PowerShell
+
+   ```
+   reg add "HKLM\System\CurrentControlSet\Control\Power" /v "PlatformAoAcOverride" /t REG_DWORD /d 0 /f
+   ```
+
+3. **重启电脑。**
+
+4. **如何验证：** 运行 `powercfg /a`。如果看到 “S0 Low Power Idle” 显示为未安装/不支持，而 “S3” 显示为可用，说明切换成功。
+
+> **注意：** 极少数近两年推出的极轻薄本（如部分 Surface 或新款 XPS）在底层固件里彻底去掉了 S3 支持。如果重启后无法睡眠或蓝屏，请运行 `reg delete "HKLM\System\CurrentControlSet\Control\Power" /v "PlatformAoAcOverride" /f` 恢复。
+
+------
+
+### 方法 B：禁用“现代待机”中的网络连接（最稳妥）
+
+如果你不想破坏 S0 结构，只是想让它在休眠时**彻底断网**（不再偷偷下更新、不再发烫），这是最推荐的方案：
+
+1. 打开 **设置** -> **系统** -> **电源和电池**。
+
+2. 找到“屏幕和睡眠”，检查是否有 **“在使用电池供电时，让我的设备在睡眠时断开网络连接”**。
+
+3. 如果没有这个选项（很多版本被隐藏了），请使用注册表开启它：
+
+   PowerShell
+
+   ```
+   reg add "HKLM\Software\Policies\Microsoft\Power\PowerSettings\f15c185d-7607-43cf-aa43-d73118451484" /v "DCSettingIndex" /t REG_DWORD /d 0 /f
+   reg add "HKLM\Software\Policies\Microsoft\Power\PowerSettings\f15c185d-7607-43cf-aa43-d73118451484" /v "ACSettingIndex" /t REG_DWORD /d 0 /f
+   ```
+
+   *（DC 是电池，AC 是电源。设为 0 表示睡眠时强行断网。）*
+
+------
+
+### 方法 C：封杀“唤醒定时器”
+
+有些系统维护任务会定时唤醒电脑。我们要关掉这些“闹钟”：
+
+1. 按 `Win + R`，输入 `control` 打开控制面板。
+2. 进入 **硬件和声音 -> 电源选项 -> 更改计划设置 -> 更改高级电源设置**。
+3. 找到 **睡眠 -> 允许使用唤醒定时器**。
+4. 将“使用电池”和“接通电源”都设为 **禁用**。
+
+------
+
+### 进阶工具：检查“是谁在包里偷偷害我”？
+
+如果你发现电脑还是发烫，可以运行以下命令生成一份“睡眠研究报告”：
+
+```Bash
+powercfg /sleepstudy
+```
+
+执行后，它会生成一个 HTML 文件。用浏览器打开它，它会用**红色**标出在睡眠期间哪个进程、哪个驱动最耗电、唤醒次数最多。
+
+------
+
+### 总结
+
+- **追求极致安全：** 关掉 S0 切换到 S3。
+- **保持系统兼容：** 保留 S0 但通过注册表强行断网。
+- **物理外挂：** 如果以上都不行，养成合上盖子前先看一眼电源灯是否熄灭的习惯，或者直接改为 **“休眠 (Hibernate)”** 而不是“睡眠 (Sleep)”。
+
+## 6. 禁用内存压缩
+
+它是 Windows 10/11 引入的一种机制：当物理内存快满时，系统不会立刻把数据写到慢速的硬盘（虚拟内存），而是先尝试用 CPU 算力把内存里的数据压缩一下。
+
+**为什么要禁用它？**
+
+- **减少延迟：** 虽然压缩省了空间，但每次读取都需要 CPU 实时解压，对于追求极限响应的玩家或音频处理用户来说，这是一种微小的延迟波动。
+- **稳定性能：** 在内存充足的情况下（比如 16GB 或更高），这种“用 CPU 换空间”的操作往往是多此一举。
+- **降低 CPU 抖动：** 避免系统在后台因为压缩内存突然占用 CPU 核心。
+
+------
+
+### 6.1 如何彻底禁用内存压缩
+
+这个操作无法在图形界面完成，必须动用 **PowerShell**。
+
+1. 右键点击“开始”按钮，选择 **终端管理员（PowerShell）**。
+
+2. 输入以下命令并回车：
+
+   ```powershell
+   Disable-mmAgent -MemoryCompression
+   ```
+   
+3. **重启电脑**。
+
+### 6.2 如何确认已经禁用？
+
+重启后，再次打开 PowerShell，输入：
+
+```PowerShell
+Get-mmAgent
+```
+
+在输出的列表里，观察 **`MemoryCompression`** 这一项：
+
+- 如果显示 **`False`**，说明已经成功禁用。
+- 如果显示 **`True`**，说明还在运行。
+
+------
+
+### 6.3 副作用预警：配合虚拟内存（页面文件）
+
+禁用内存压缩后，系统对物理内存的利用会变得“实打实”。如果你的物理内存真的用完了，系统会直接把压力转嫁给硬盘上的**页面文件（pagefile.sys）**。
+
+**建议：**
+
+- 如果你的内存是 **16GB 或以上**，放心禁用，几乎没有负面影响。
+- 如果你的内存只有 **8GB 或更低**，禁用后可能会更早触发“系统内存不足”的警告。此时建议确保你的 C 盘（SSD）留有足够的虚拟内存空间。
+
+------
+
+### 6.4 进阶：如何恢复？
+
+如果你发现禁用后，某些极度吃内存的软件（如 AE、大型虚拟机）经常崩溃，可以用这条命令恢复：
+
+PowerShell
+
+```
+Enable-mmAgent -MemoryCompression
+```
+
+------
+
+### 6.5 补充优化：清理 SysMain (原 Superfetch)
+
+内存压缩其实是 **SysMain** 服务的一部分。如果你追求极致的静态内存占用，可以考虑关闭这个预加载服务：
+
+1. `Win + R` 输入 `services.msc`。
+2. 找到 **SysMain**，右键点击“属性”。
+3. 启动类型改为 **禁用**，并停止服务。
+
+> *注：关闭 SysMain 会让系统不再学习你的使用习惯来预加载 App，刚开机时的软件启动速度可能会慢一秒，但后台会非常干净。*
+
+
+
+## 7. 内核隔离 (VBS)”功能
+
+**核隔离（VBS，基于虚拟化的安全性）** 以及其中的 **内存完整性（HVCI）** 是 Windows 11 为了防止恶意代码注入而设计的安全层。
+
+它通过硬件虚拟化技术（虚拟化一个安全的内存区域）来保护内核，但代价是 **CPU 性能开销**。对于游戏玩家来说，这会导致 CPU 在处理游戏指令时多出一层校验，从而造成平均帧数下降和明显的 **1% Low 帧（掉帧感）**。
+
+------
+
+### 7.1 第一步：在“设置”中手动关闭（最常用）
+
+大多数用户可以通过图形界面直接关闭最吃性能的“内存完整性”。
+
+1. 打开 **开始菜单**，搜索并进入 **“设备安全性”**。
+2. 点击 **“内核隔离详细信息”**。
+3. 将 **“内存完整性”** 的开关设为 **关闭**。
+4. 重启电脑。
+
+------
+
+### 7.2 第二步：彻底禁用 VBS（通过注册表）
+
+有时候即便关了内存完整性，VBS 后台依然在运行。我们需要在注册表中彻底封杀它。
+
+1. 按下 `Win + R`，输入 `regedit`。
+2. 导航至： `HKEY_LOCAL_MACHINE\System\CurrentControlSet\Control\DeviceGuard`
+3. 在右侧找到 **`EnableVirtualizationBasedSecurity`**。
+4. 将其数值数据修改为 **`0`**。
+5. 重启电脑。
+
+------
+
+### 7.3 第三步：关闭“虚拟机平台”功能
+
+如果你的电脑依然在运行 VBS（通常是因为开启了 WSL2 或安卓子系统），你需要关闭 Windows 的虚拟化平台功能：
+
+1. 按下 `Win + R`，输入 `optionalfeatures`。
+2. 在列表中找到以下两项并 **取消勾选**：
+   - **虚拟机平台** (Virtual Machine Platform)
+   - **Windows 虚拟机监控程序平台** (Windows Hypervisor Platform)
+3. 点击确定并重启。
+
+> **注意：** 关闭这两项后，你将无法运行 **WSL2（Linux 子系统）**、**Docker** 或 **安卓子系统 (WSA)**。如果你需要这些生产力工具，则必须保留它们，性能损耗是不可避免的交换。
+
+------
+
+### 7.4 终极一招：在 BIOS 中关闭硬件虚拟化（不推荐但最彻底）
+
+如果系统依然顽固地开启 VBS，你可以在 BIOS 设置中直接关闭 CPU 的虚拟化技术：
+
+- **Intel CPU:** 关闭 `VT-x`。
+- **AMD CPU:** 关闭 `SVM Mode`。
+- *副作用：所有虚拟机软件、安卓模拟器都将彻底无法启动。*
+
+------
+
+### 7.5 如何验证 VBS 是否已彻底关闭？
+
+1. 按下 `Win + R`，输入 `msinfo32` 并回车。
+2. 在“系统摘要”右侧的最下方找到：
+   - **基于虚拟化的安全性** (Virtualization-based security)
+3. 如果显示为 **“未启用” (Not enabled)**，恭喜你，你的 CPU 已经卸下了沉重的负担，完全释放了游戏性能。
+
+------
+
+### 7.6 安全提醒
+
+关闭 VBS 会降低系统的安全性，特别是针对那些试图直接攻击内核的病毒。
+
+- **建议：** 只要你保持良好的上网习惯（不乱点不明链接、不运行来源不明的破解软件），关闭 VBS 带来的性能收益通常远大于其安全风险。
+
+
+
+## 8. **轻量化**和**极简**
+
+### 8.1 任务栏彻底透明：TranslucentTB (仅约 2MB)
+
+Windows 11 的任务栏默认是半透明带有毛玻璃效果的，但在纯净桌面上，**彻底透明**（壁纸直接延伸到屏幕底部）会显得空间感极大。
+
+- **工具优势：** 内存占用极低（通常在 2MB-5MB 左右），它是通过调用 Windows 内部 API 修改渲染参数实现的，而不是在任务栏上覆盖一层图片。
+- **操作方法：**
+  1. 从 Microsoft Store 或 GitHub 下载 **TranslucentTB**。
+  2. 启动后，它会缩在右下角托盘区。
+  3. 右键图标 -> **Desktop** -> 设置为 **Clear**。
+  4. 你还可以设置在“打开窗口”或“开始菜单打开”时自动切换回模糊效果，防止看不清图标。
+
+------
+
+### 8.2 资源管理器极简多标签：Files (现代替代品)
+
+虽然 Windows 11 现在原生支持标签页，但它的 UI 依然显得有些臃肿且左侧侧边栏不可深度精简。如果你追求极致的视觉统一感，**Files** 是目前社区公认颜值最高且功能极简的方案。
+
+- **核心特性：**
+  - **多标签页控制：** 像浏览器一样管理文件夹。
+  - **双窗格模式：** 一个窗口左右两个目录，拖拽文件飞快。
+  - **侧边栏极简：** 可以隐藏所有你不需要的“库”、“快速访问”。
+- **注意：** Files 的资源占用比原生的资源管理器稍微高一点点（因为它使用了 WinUI 3），但如果你想让系统看起来像“次世代”系统，它是首选。
+
+------
+
+### 8.3 给“赛车”换个极简表盘：ModernFlyouts
+
+Windows 原生的音量和亮度调节框（那个左上角或顶部的黑框）设计很陈旧。
+
+- **工具：** **ModernFlyouts**。
+- **效果：** 将音量、亮度调节框改为流畅的、可跟随鼠标位置的浮窗，且完全符合 Windows 11 的圆角设计风格。同样只有几 MB 大小。
+
+------
+
+### 8.4 极致清爽：隐藏所有桌面图标
+
+既然任务栏透明了，锁屏也干净了，建议尝试一下**“零图标桌面”**：
+
+1. 右键桌面 -> **查看** -> 取消勾选 **“显示桌面图标”**。
+2. **如何快速打开程序？** 按一下 `Win` 键，直接输入程序名字的首字母（如输入 `c` 打开 Chrome）。因为你之前优化了搜索索引和精简了组件，现在的系统搜索应该瞬间响应。
+
+------
+
+### 8.5 最后的隐藏技巧：去除快捷方式的小箭头
+
+这个小箭头虽然不占资源，但在视觉上非常“廉价”。
+
+1. 新建一个文本文档，粘贴以下代码：
+
+   コード スニペット
+
+   ```
+   Windows Registry Editor Version 5.00
+   [HKEY_LOCAL_MACHINE\SOFTWARE\Microsoft\Windows\CurrentVersion\Explorer\Shell Icons]
+   "29"="C:\\Windows\\System32\\shell32.dll,51"
+   ```
+
+2. 保存为 `.reg` 文件，双击运行并重启资源管理器。
+
+3. *（注：这只是视觉修改，对性能无任何负面影响。）*
+
+
+
+## 9. 清理残留的日志文件
+
+**只清理垃圾，绝不常驻后台，且执行过程透明。**
+
+我们可以利用 Windows 自带的 **Batch (.bat)** 脚本配合 **任务计划程序** 来实现“静默自动化”。
+
+------
+
+### 9.1 编写巡检清理脚本
+
+创建一个名为 `System_Maintenance.bat` 的文件，将以下内容粘贴进去。我为你整合了日志清理、临时文件扫描以及你之前提到的 DISM 维护指令：
+
+`System_Maintenance.bat`
+
+```
+@echo off
+:: 检查管理员权限
+net session >nul 2>&1
+if %errorLevel% neq 0 (
+    echo 请右键点击此脚本，选择“以管理员身份运行”！
+    pause
+    exit /b
+)
+
+echo [1/4] 正在清理系统日志文件 (*.log)...
+:: 清理 Windows 系统日志
+wevtutil cl System
+wevtutil cl Application
+wevtutil cl Security
+del /f /s /q %systemroot%\Logs\*.log >nul 2>&1
+
+echo [2/4] 正在清理临时文件与缓存...
+:: 清理用户临时文件夹
+del /f /s /q %temp%\*.* >nul 2>&1
+:: 清理系统临时文件夹
+del /f /s /q %systemroot%\Temp\*.* >nul 2>&1
+:: 清理 Prefetch 预取文件
+del /f /s /q %systemroot%\Prefetch\*.* >nul 2>&1
+
+echo [3/4] 正在清理组件存储冗余 (DISM)...
+:: 压缩已取代的组件并清理备份 (你之前做过，这里作为定期维护)
+dism /online /cleanup-image /startcomponentcleanup
+
+echo [4/4] 正在尝试释放 DNS 缓存与过期配置...
+ipconfig /flushdns >nul
+
+echo --------------------------------------------------
+echo [完成] 系统巡检已结束！您的“赛车”已准备就绪。
+echo --------------------------------------------------
+timeout /t 3
+```
+
+------
+
+### 9.2 设置“定期自动运行”
+
+为了不让你每天手动去点，我们可以利用 Windows 的 **任务计划程序**，让它在每周一凌晨或你电脑闲置时自动运行。
+
+1. 按下 `Win + R`，输入 `taskschd.msc` 并回车。
+2. 在右侧点击 **“创建任务”**（不是基本任务）。
+3. **常规选项卡：**
+   - 名称：`System_Clean`
+   - 勾选 **“不管用户是否登录都要运行”**。
+   - 勾选 **“使用最高权限运行”**（这步最关键，否则清不掉系统日志）。
+4. **触发器选项卡：**
+   - 点击“新建”，选择 **“每周”**，勾选星期一。
+5. **操作选项卡：**
+   - 点击“新建”，在“程序或脚本”里浏览并选择你刚才保存的 `System_Maintenance.bat`。
+6. **条件选项卡：**
+   - 勾选 **“只有在计算机空闲时才启动”**，这样它就不会在你打游戏时突然跳出来清理。
+
+------
+
+### 9.3 脚本背后的逻辑（为什么这么写？）
+
+- **`wevtutil cl`：** 这是清理 Windows 事件查看器日志的最快方式。这些日志虽然几百 KB，但长期积累会产生数万个碎片文件。
+- **`Prefetch`：** 虽然它能加速 App 启动，但在你频繁进行系统精简后，里面的旧索引已经失效，清理后系统会根据你现在的极简状态重新生成更高效的索引。
+- **`DISM /startcomponentcleanup`：** 它可以确保每次 Windows 自动安装小补丁后，那些旧的补丁文件不会无限期堆积在 `WinSxS` 文件夹里。
+
+------
+
+### 9.4 终极巡检：手动检查命令
+
+如果你觉得系统最近有些异常，可以在运行完脚本后，手动执行我们在上一步学过的“双雄”指令作为补充：
+
+- 检查文件完整性：`sfc /scannow`
+- 检查底层映像：`dism /online /cleanup-image /checkhealth`
