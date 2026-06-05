@@ -2159,3 +2159,57 @@ Write-Host "Windows 日志已恢复为默认设置。" -ForegroundColor Green
 - 所有被禁用的日志通道重新启用
 - 遥测、诊断、错误报告恢复
 - 系统日志行为完全回到 Windows 默认状态
+
+
+
+# 隐藏“搜索索引已关闭”
+
+## 1. 隐藏提示
+
+```powershell
+# ============================================
+# 隐藏 Windows 11 “搜索索引已关闭”提示
+# 不启用索引，仅隐藏 UI 提示
+# ============================================
+
+Write-Host "正在应用隐藏搜索索引提示策略..." -ForegroundColor Cyan
+
+# 创建策略路径
+New-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Force | Out-Null
+
+# 禁用索引器相关提示（关键）
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" `
+    -Name "PreventIndexingLowDiskSpace" -Type DWord -Value 1
+
+# 禁用索引器退避机制（避免提示）
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" `
+    -Name "DisableBackoff" -Type DWord -Value 1
+
+# 告诉系统“索引器已配置完成”（避免健康检查提示）
+Set-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Search" `
+    -Name "SetupCompletedSuccessfully" -Type DWord -Value 1
+
+Write-Host "已完成！搜索框将不再显示索引关闭提示。" -ForegroundColor Green
+
+```
+
+## 2. 恢复提示
+
+```powershell
+# ============================================
+# 恢复 Windows 11 “搜索索引已关闭”提示
+# 撤销隐藏策略，恢复默认行为
+# ============================================
+
+Write-Host "正在恢复搜索索引提示策略..." -ForegroundColor Cyan
+
+# 删除策略路径（如果存在）
+Remove-Item -Path "HKLM:\SOFTWARE\Policies\Microsoft\Windows\Windows Search" -Recurse -Force -ErrorAction SilentlyContinue
+
+# 恢复 SetupCompletedSuccessfully 默认行为（删除即可）
+Remove-ItemProperty -Path "HKLM:\SOFTWARE\Microsoft\Windows Search" `
+    -Name "SetupCompletedSuccessfully" -ErrorAction SilentlyContinue
+
+Write-Host "已恢复！Windows
+```
+
